@@ -1,4 +1,5 @@
 const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
 const RezoUser = require('../models/RezoUser');
 
 exports.signup = async (req, res, next) => {
@@ -27,7 +28,11 @@ exports.login = async (req, res, next) => {
                 throw error = new Error(message)
             } else { res.status(200).json({
                 userId: rezoUser._id,
-                token: 'TOKEN'
+                token: jwt.sign(
+                    { userId: rezoUser._id },
+                    'RANDOM_TOKEN_SECRET',
+                    { expiresIn: '24h' }
+                )
             }) }
         }
     } catch(error) {

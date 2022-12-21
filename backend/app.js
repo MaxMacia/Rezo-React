@@ -1,10 +1,13 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const dotenv = require('dotenv');
+const RezoUser = require('./models/RezoUser');
+const rezoUserRoutes = require('./routes/rezoUser');
 
 const app = express();
 dotenv.config();
 
+mongoose.set('strictQuery', false);
 async function mongooseConnect() {
     try {
         await mongoose.connect(
@@ -18,6 +21,8 @@ async function mongooseConnect() {
 };
 mongooseConnect();
 
+RezoUser.watch().on('change', data => console.log(new Date(), data));
+
 app.use(express.json());
 
 app.use((req, res, next) => {
@@ -27,6 +32,6 @@ app.use((req, res, next) => {
     next();
 });
 
-
+app.use('/api/auth', rezoUserRoutes);
 
 module.exports = app;

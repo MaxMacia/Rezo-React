@@ -10,10 +10,21 @@ exports.signup = async (req, res, next) => {
         password: hash
     });
     try {
-        await rezoUser.save();
-        const message = "Utilisateur enregistré";
-        res.status(201).json(message);
-    } catch(error) { res.status(500).json(error.message) };
+        const valid = await bcrypt.compare(req.body.confirmPassword, rezoUser.password);
+        const errorMessage = "Le mot de passe ne correspond pas au mot de passe de confirmation";
+        if (!valid) {
+            throw error = new Error(errorMessage)
+        } else {
+            await rezoUser.save();
+            const message = "Utilisateur enregistré";
+            res.status(201).json(message);
+        }
+    } catch(error) {
+        const message = "Le mot de passe ne correspond pas au mot de passe de confirmation";
+        if (error.message === message) {
+            res.status(401).json(error.message)
+        } else { res.status(500).json(error.message) }
+    };
 };
 
 exports.login = async (req, res, next) => {

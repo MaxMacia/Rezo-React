@@ -1,14 +1,9 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import { BrowserRouter as Router } from 'react-router-dom';
-import { createGlobalStyle } from 'styled-components';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Header from './components/Header';
-
-const GlobalStyle = createGlobalStyle`
-  * {
-    margin: 0;
-  }
-`;
+import Home from './pages/Home';
+import { GlobalStyle } from './utils/styles';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
@@ -16,6 +11,9 @@ root.render(
     <Router>
       <GlobalStyle />
       <Header />
+      <Routes>
+        <Route path='/' element={<Home />} />
+      </Routes>
     </Router>
   </React.StrictMode>
 );

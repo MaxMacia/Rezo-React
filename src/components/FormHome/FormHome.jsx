@@ -1,68 +1,134 @@
 import { useState } from "react";
+import { useEffect } from "react";
 import { Button } from "../../utils/styles";
-import { Form, Fields } from './FormHome.style'
+import { Form, Fields, FieldInputs } from './FormHome.style';
+
 
 function FormHome({ signupPage }) {
-    const [input, setInput] = useState({});
-    
-    function submitForm(inputs) {
-       let valid = true;
-       const keys = Object.keys(inputs)
-        for (let i = 0; i < keys.length; i++) {
-            valid &= inputs[keys[i]].reportValidity(); 
-            if (!valid) {
-                break;
-            }
-        }
-        if (valid) {
-            alert(signupPage ? "Utilisateur enregistré" : "Utilisateur connecté")
-        }
+    const [loginInput, setLoginInput] = useState({
+        identifier: '',
+        password: ''
+    });
+    const [loginValidation, setloginValidation] = useState({
+        identifier: '',
+        password: ''
+    });
+    const onUpdateLoginFields = event => {
+        const { name, value } = event.target;
+        setLoginInput({ ...loginInput, [name]: value });
     };
 
+    const checkLoginValidation = () => {
+        let errors = loginValidation;
+        if (!loginInput.identifier.trim()) {
+            errors.identifier = 'Veuillez entrer un identifiant';
+        } else {
+            errors.identifier = '';
+        }
+        if(!loginInput.password.trim()) {
+            errors.password = 'Veuillez entrer un mot de de passe'
+        } else {
+            errors.password = '';
+        }
+        setloginValidation(errors);
+    };
+
+    useEffect(() => {
+        checkLoginValidation();
+    }, [loginInput]);
+    
+    const onSubmitLoginForm = event => {
+        event.preventDefault();
+        const { identifier, password } = loginValidation;
+        if (!!identifier && !!password) {
+            return;
+        }
+        alert(JSON.stringify(loginInput, null, 2));
+    }
+
+    const [signupInput, setSignupInput] = useState({
+        identifier: '',
+        email: '',
+        password: '',
+        confirmPassword: ''
+    });
+    const [signupValidation, setSignupValidation] = useState({
+        identifier: '',
+        email: '',
+        password: '',
+        confirmPassword: ''
+    });
+    const onUpdateSignupFields = event => {
+        const { name, value } = event.target;
+        setSignupInput({ ...signupInput, [name]: value });
+    };
+    const checkSignupValidation = () => {
+        let errors = signupValidation;
+        if (!signupInput.identifier.trim()) {
+            errors.identifier = 'Veuillez entrer un identifiant';
+        } else {
+            errors.identifier = '';
+        }
+        if (!signupInput.email.trim()) {
+            errors.identifier = 'Veuillez entrer un email';
+        } else if (!new RegExp(/\S+@\S+\.\S+/).test(signupInput.email)) {
+            errors.email = 'le format de l\'email est incorrect';
+        } else {
+            errors.identifier = '';
+        }
+        if(!signupInput.password.trim()) {
+            errors.password = 'Veuillez entrer un mot de de passe'
+        } else {
+            errors.password = '';
+        }
+        if(!signupInput.confirmPassword.trim()) {
+            errors.confirmPassword = 'Veuillez entrer un mot de de passe'
+        } else if (signupInput.confirmPassword.trim() !== signupInput.password.trim()) {
+            errors.confirmPassword = 'Le mot de passe ne correspond pas au mot de passe de confirmation';
+        } else {
+            errors.password = '';
+        }
+        setSignupValidation(errors);
+    };
+
+    useEffect(() => {
+        checkSignupValidation();
+    }, [signupInput]);
+
+    const onSubmitSignupForm = event => {
+        event.preventDefault();
+        const { identifier, password } = signupValidation;
+        if (!!identifier && !!password) {
+            return;
+        }
+        alert(JSON.stringify(signupInput, null, 2));
+    };
+    
+
     return (
-        <Form onSubmit={() => submitForm(input)}>
+        <Form onSubmit={signupPage ? onSubmitSignupForm : onSubmitLoginForm}>
             <Fields>
-                <label htmlFor="identifiant">Identifiant</label>
-                <input type="text" name="identifiant" onChange={signupPage ? (
-                    input.name && !input.pwd && !input.email ? event => (
-                        setInput({ name: event.target.value })
-                        ) : (
-                            event => setInput({ ...input, name: event.target.value })
-                        )
-                ) : (
-                    input.name && !input.pwd ? event => (
-                        setInput({ name: event.target.value })
-                        ) : (
-                            event => setInput({ ...input, name: event.target.value })
-                        )
-                )} required />
+                <label htmlFor="identifier">Identifiant</label>
+                <FieldInputs type="text" name="identifier" onBlur={signupPage ? onUpdateSignupFields : onUpdateLoginFields}  />
+                {loginValidation.identifier && <p>{loginValidation.identifier}</p>}
             </Fields>
             {signupPage ? (
                 <Fields>
                     <label htmlFor="email">Email</label>
-                    <input type="email" name="email" onChange={input.email && !input.name && !input.pwd ? event => (
-                    setInput({ email: event.target.value })
-                    ) : (
-                        event => setInput({ ...input, email: event.target.value })
-                    )} required />
+                    <FieldInputs type="email" name="email" onChange={onUpdateSignupFields} required />
                 </Fields>
             ) : null}
             <Fields>
-                <label htmlFor="mot-de-passe">Mot de passe</label>
-                <input type="password" name="mot-de-passe" onChange={signupPage ? (
-                    input.pwd && !input.name && !input.email ? (
-                        event => setInput({ pwd: event.target.value })
-                    ) : (
-                        event => setInput({ ...input, pwd: event.target.value})
-                    )
-                ) : (
-                    input.pwd && !input.name ? (
-                        event => setInput({ pwd: event.target.value })
-                    ) : (
-                        event => setInput({ ...input, pwd: event.target.value})
-                    )
-                )} required />
+                <label htmlFor="password">Mot de passe</label>
+                <FieldInputs type="password" name="password" onBlur={signupPage ? onUpdateSignupFields : onUpdateLoginFields}  />
             </Fields>
+            {loginValidation.password && <p>{loginValidation.password}</p>}
+            {signupPage ? (
+                <Fields>
+                    <label htmlFor="confirmPassword">Confirmation du mot de passe</label>
+                    <FieldInputs type="password" name="confirmPassword" onChange={onUpdateSignupFields}  required />
+                </Fields>
+            ) : null}
             <Button type="submit" value={signupPage ? "S'enregistrer" : "Connexion"} />
         </Form>
     );

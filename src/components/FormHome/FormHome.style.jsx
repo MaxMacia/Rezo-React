@@ -22,3 +22,7 @@ export const Fields = styled.div`
     justify-content: space-between;
     width: 90%;
 `;
+
+export const FieldInputs = styled.input`
+    height: 15.5px;
+`;
